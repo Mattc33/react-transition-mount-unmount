@@ -1,0 +1,25 @@
+.fade-in-out {
+  opacity: 0;
+  transition: all linear 1s;
+}
+
+.scale-in-out {
+  transform: scale(0);
+  transition: all linear 1s;
+}
+
+.fade-in {
+  opacity: 1;
+}
+
+.fade-out {
+  opacity: 0;
+}
+
+.scale-in {
+  transform: scale(1);
+}
+
+.scale-out {
+  transform: scale(0);
+}
