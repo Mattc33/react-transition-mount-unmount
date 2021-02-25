@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import './Modal.css'
-
 export default class Modal extends Component {
 
   constructor(props, context) {
@@ -14,21 +13,31 @@ export default class Modal extends Component {
     this.animationType = this.getAnimationType(this.props.animation)
   }
 
+
   componentDidMount = () => {
-    setTimeout(() => this.setState({ doAnimation: this.animationType.in, opacity: 1 }), 0)
+    this.setState({doAnimation: this.animationType.in})
   }
 
-  transitionEnd = () => {
-    if (!this.state.unmounting) return;
-    this.props.onClose()
+  componentWillReceiveProps = (forwardProps) => {
+    if (forwardProps.isModalOpen) {
+      this.setState({ doAnimation: this.animationType.in })
+    }
   }
 
-  handleClick = e => {
-    this.setState({ doAnimation: this.animationType.out, unmounting: true })
+  animationEnd = e => {
+    if (e.animationName.split('-')[1] === 'in') return;
+
+    if (e.animationName.split('-')[1] === 'out') {
+      this.props.closeModal()
+    }
+  }
+
+  handleClick = () => {
+    this.setState({ doAnimation: this.animationType.out})
   }
 
   getAnimationType = (animationType) => {
-    let type = '';
+    let type = ''
 
     switch (animationType) {
       case 'fade-in-out':
@@ -47,20 +56,24 @@ export default class Modal extends Component {
 
   render = () => {
     return (
-      <div
-        onTransitionEnd={this.transitionEnd}
-        style={styles.modal}
-        className={`${this.props.animation === 'fade-in-out' ? 'fade-in-out' : ''} ${this.props.animation === 'fade-in-out' ? this.state.doAnimation : ''}`}
-      >
-        <div 
-          style={styles.boxDialog} 
-          className={`${this.props.animation} ${this.state.doAnimation}`}
-        >
-          Modal
+      <React.Fragment>
+        {this.props.isModalOpen && (
+          <div
+            onAnimationEnd={this.animationEnd}
+            style={styles.modal}
+            className={`${this.props.animation === 'fade-in-out' ? this.state.doAnimation : ''}`}
+          >
+            <div
+              style={styles.boxDialog}
+              className={this.state.doAnimation}
+            >
+              Modal
           <button onClick={this.handleClick}>Close</button>
-        </div>
-        <div style={styles.background}/>
-      </div>
+            </div>
+            <div style={styles.background} />
+          </div>
+        )}
+      </React.Fragment>
     )
   }
 }
@@ -89,6 +102,7 @@ const styles = {
   },
   boxDialog: {
     width: '100%',
+    height: '200px',
     backgroundColor: '#fefefe',
     boxShadow: '0 3px 9px rgba(0, 0, 0, 0.5)',
     zIndex: 1,
